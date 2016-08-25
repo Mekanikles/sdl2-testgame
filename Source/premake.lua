@@ -11,6 +11,7 @@ project "Main"
 	targetdir (rootDir .. "Local/Bin/%{cfg.buildcfg}")
 	
 	includedirs { rootDir .. "External/SDL2/include" }
+	includedirs { rootDir .. "External/gsl" }
 	libdirs { rootDir .. "External/SDL2/lib/x86/" }
 	links { "SDL2", "SDL2main" }
 	

@@ -9,6 +9,7 @@
 	#include "SDL_opengl.h"
 #endif
 
+/*
 namespace
 {
 // Shader sources
@@ -29,7 +30,7 @@ const GLchar* fragmentSource = R"(
 	)";
 
 }
-
+*/
 namespace Renderer
 {
 
@@ -42,8 +43,6 @@ void set2dProjection()
 	glOrtho(-2.0, 2.0, -2.0 * aspectAdjust, 2.0 * aspectAdjust, -20.0, 20.0);
 #endif
 }
-
-void initRendere
 
 
 

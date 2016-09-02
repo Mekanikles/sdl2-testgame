@@ -1,0 +1,5 @@
+#!/bin/sh
+
+premake5 --file=./Source/premake.lua xcode4
+
+

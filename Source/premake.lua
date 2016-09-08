@@ -11,14 +11,23 @@ project "Main"
 	
 	includedirs { rootDir .. "External/SDL2/include" }
 	includedirs { rootDir .. "External/gsl" }
-	libdirs { rootDir .. "External/SDL2/lib/x86/" }
-    libdirs { rootDir .. "External/SDL2/lib/osx/" }
-	links { "SDL2", "SDL2main", "OpenGL.framework" }
+	includedirs { rootDir .. "External/glm" }
+	includedirs { rootDir .. "External/glew/include" }
 	
-	debugdir (rootDir .. "Bin/x86")
+	links { "SDL2", "SDL2main" }
+	debugdir (rootDir .. "Bin")
 	
 	files { "**.h", "**.cpp" }
-
+		
+	filter "system:Windows"
+		libdirs { rootDir .. "External/SDL2/lib/x86/" }
+		libdirs { rootDir .. "External/glew/lib/Release/Win32/" }
+		links { "opengl32", "glu32", "glew32s"}
+		
+	filter "system:MacOSX"
+		libdirs { rootDir .. "External/SDL2/lib/osx/" }
+		links { "OpenGL.framework" }
+	
 	filter "configurations:Debug"
 		defines { "DEBUG" }
 		flags { "Symbols" }

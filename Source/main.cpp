@@ -1,16 +1,18 @@
+
+#include "Graphics.h"
+
 #include "SDL.h"
 #include <stdio.h>
 
-#include "Renderer.h"
+#include "Core.h"
+
+using namespace jcpe;
 
 void render()
 {
-
-
-
-
+	jcpe::graphics::setClearColor(ColorRGBA(1.0f, 0.5f, 0.25f, 1.0f));
+	jcpe::graphics::clearFrameBuffer();
 }
-
 
 bool mainloop()
 {
@@ -30,42 +32,63 @@ bool mainloop()
 		}
 	}
 
+	render();
+
 	return done;
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[]) 
+{
+    if (SDL_Init(SDL_INIT_VIDEO) < 0)
+	{
+		LOG("Failed to initialize SDL: " <<  SDL_GetError());
+		return 1;
+	}
 
-    SDL_Window *window;                    // Declare a pointer
+	AT_SCOPE_EXIT( SDL_Quit(); );
 
-    SDL_Init(SDL_INIT_VIDEO);              // Initialize SDL2
+	jcpe::graphics::WindowCreationParams windowParams = { 640, 480 };
+	owned_ptr<jcpe::graphics::Window> window = jcpe::graphics::createWindow(windowParams);
+	if (!window)
+		return 1;
 
-    // Create an application window with the following settings:
-    window = SDL_CreateWindow(
-        "An SDL2 window",                  // window title
-        SDL_WINDOWPOS_UNDEFINED,           // initial x position
-        SDL_WINDOWPOS_UNDEFINED,           // initial y position
-        640,                               // width, in pixels
-        480,                               // height, in pixels
-        SDL_WINDOW_OPENGL                  // flags - see below
-    );
+	AT_SCOPE_EXIT( jcpe::graphics::destroyWindow(std::move(window)); );
 
-    // Check that the window was successfully created
-    if (window == NULL) {
-        // In the case that the window could not be made...
-        printf("Could not create window: %s\n", SDL_GetError());
-        return 1;
-    }
+    owned_ptr<jcpe::graphics::Context> context = jcpe::graphics::createContext(window);
+	if (!context)
+		return 1;
 
-    // The window is open: could enter program loop here (see SDL_PollEvent())
+	AT_SCOPE_EXIT( jcpe::graphics::destroyContext(std::move(context)); );
+
+	// Shader sources
+	const char* vertexSource = R"(
+		attribute vec4 position;
+		void main()
+		{
+			gl_Position = vec4(position.xyz, 1.0);
+		}
+		)";
+
+	const char* fragmentSource = R"(
+		precision mediump float;
+		void main()
+		{
+			gl_FragColor = vec4 (1.0, 1.0, 1.0, 1.0 );
+		}
+		)";
+
+	jcpe::graphics::ProgramCreationParams programParams = { vertexSource, fragmentSource };
+	owned_ptr<jcpe::graphics::Program> program = jcpe::graphics::createProgram(programParams);
+	if (!program)
+		return 1;
+
+	AT_SCOPE_EXIT( jcpe::graphics::destroyProgram(std::move(program)); );
 
 	while (!mainloop())
-	{
-		SDL_Delay(16);  
+	{	
+		jcpe::graphics::swapBuffers(window);
+		SDL_Delay(16);
 	}
-    // Close and destroy the window
-    SDL_DestroyWindow(window);
 
-    // Clean up
-    SDL_Quit();
     return 0;
 }

@@ -3,23 +3,19 @@
 #include <sstream>
 #include <ostream>
 #include <iostream>
-#include <windows.h>
 
-#include <SDL_log.h>
+#include "SDL_log.h"
 
 namespace jcpe
 {
-
-// TODO: replace log with SDL log
 
 #ifndef RELEASE
 	#define LOG( text )																								\
 		do																											\
 		{																											\
 			std::ostringstream os;																					\
-			os << __FUNCTION__ << "(" << __LINE__ << "): " << text << std::endl;										\
-			OutputDebugStringA( os.str().c_str() );																	\
-			std::cout << os.str().c_str();																			\
+			os << __FUNCTION__ << "(" << __LINE__ << "): " << text << std::endl;									\
+			SDL_Log("%s", os.str().c_str());                                                                        \
 		}																											\
 		while(0)
 
@@ -28,8 +24,8 @@ namespace jcpe
 		{																											\
 			if (!( statement ))																						\
 			{																										\
-				LOG("Fatal assert: " << desc );																		\
-				throw std::runtime_error(std::string( desc ));														\
+				LOG("Fatal assert: " << desc);																		\
+				throw std::runtime_error(std::string(desc));														\
 			}																										\
 		}																											\
 		while(0)

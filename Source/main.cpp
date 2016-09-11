@@ -2,7 +2,7 @@
 #include "Graphics.h"
 
 #include "SDL.h"
-#include <stdio.h>
+#include "SDL_assert.h"
 
 #include "Core.h"
 
@@ -17,7 +17,6 @@ void render()
 bool mainloop()
 {
 	bool done = false;
-
 	SDL_Event event;
 	while(SDL_PollEvent(&event))
 	{
@@ -62,6 +61,7 @@ int main(int argc, char* argv[])
 
 	// Shader sources
 	const char* vertexSource = R"(
+        #version 100
 		attribute vec4 position;
 		void main()
 		{
@@ -70,6 +70,7 @@ int main(int argc, char* argv[])
 		)";
 
 	const char* fragmentSource = R"(
+        #version 100
 		precision mediump float;
 		void main()
 		{

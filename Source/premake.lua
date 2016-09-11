@@ -9,10 +9,9 @@ project "Main"
 	language "C++"
 	targetdir (rootDir .. "Local/Bin/%{cfg.buildcfg}")
 	
-	includedirs { rootDir .. "External/SDL2/include" }
-	includedirs { rootDir .. "External/gsl" }
-	includedirs { rootDir .. "External/glm" }
-	includedirs { rootDir .. "External/glew/include" }
+	includedirs { rootDir .. "External/SDL2/include/" }
+	includedirs { rootDir .. "External/gsl/" }
+	includedirs { rootDir .. "External/glm/" }
 	
 	links { "SDL2", "SDL2main" }
 	debugdir (rootDir .. "Bin")
@@ -20,11 +19,14 @@ project "Main"
 	files { "**.h", "**.cpp" }
 		
 	filter "system:Windows"
+        defines { "__WINDOWS__" }
+        includedirs { rootDir .. "External/glew/include" }
 		libdirs { rootDir .. "External/SDL2/lib/x86/" }
 		libdirs { rootDir .. "External/glew/lib/Release/Win32/" }
 		links { "opengl32", "glu32", "glew32s"}
 		
 	filter "system:MacOSX"
+        defines { "__OSX__" }
 		libdirs { rootDir .. "External/SDL2/lib/osx/" }
 		links { "OpenGL.framework" }
 	

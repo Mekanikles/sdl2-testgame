@@ -1,64 +1,25 @@
-/*#define GLEW_STATIC
-#include <GL/glew.h>
+#include "Graphics.h"
 
-static_assert(GL_VERSION_2_0, "System must support opengl 2.0");
-*/
+#include "SDL.h"
 
-/*
+#include "Core.h"
+
 #if defined(__IPHONEOS__) || defined(__ANDROID__)
 	#define SUPPORTS_OPENGLES
 #endif
 
 #ifdef SUPPORTS_OPENGLES
-	#include <SDL_opengles2.h>
+	#include "SDL_opengles2.h"
+    #define USING_OPENGLES
 #else
-	#include <SDL_opengl.h>
-#endif
-*/
-
-/*
-namespace
-{
-// Shader sources
-const GLchar* vertexSource = R"(
-	attribute vec4 position;
-	void main()
-	{
-		gl_Position = vec4(position.xyz, 1.0);
-	}
-	)";
-
-const GLchar* fragmentSource = R"(
-	precision mediump float;
-	void main()
-	{
-		gl_FragColor = vec4 (1.0, 1.0, 1.0, 1.0 );
-	}
-	)";
-
-}
-*/
-
-#include <type_traits>
-
-static_assert(std::is_trivially_copyable<const char*>(), "dasfa");
-
-
-
-#include "Graphics.h"
-
-#include "Core.h"
-
-#define GLEW_STATIC
-#include <GL/glew.h>
-
-#include "SDL.h"
-
-
-#ifdef SUPPORTS_OPENGLES
-	#include <SDL_opengles2.h>
-#else
-	#include <SDL_opengl.h>
+    #ifdef __WINDOWS__
+        #define GLEW_STATIC
+        #include "GL/glew.h"
+        #define USING_GLEW
+    #else
+        // For now, ese gl3 as best match for ogles2
+        #include "OpenGL/gl3.h"
+    #endif
 #endif
 
 namespace jcpe
@@ -135,13 +96,17 @@ owned_ptr<Context> createContext(gsl::not_null<Window*> window)
 	
     SDL_GLContext sdlc = SDL_GL_CreateContext(window->sdlWindow);
 
-	glewExperimental = GL_FALSE;
-	GLenum err = glewInit();
-	if (err != GLEW_OK)
-	{
-		LOG("Could not create context: " << glewGetErrorString(err));
-		return nullptr;
-	}
+    #ifdef USING_GLEW
+    {
+        glewExperimental = GL_FALSE;
+        GLenum err = glewInit();
+        if (err != GLEW_OK)
+        {
+            LOG("Could not create context: " << glewGetErrorString(err));
+            return nullptr;
+        }
+    }
+    #endif
 
 	Context* context = new Context{ sdlc };
 	return owned_ptr<Context>(context);
@@ -256,4 +221,4 @@ void clearFrameBuffer()
 
 } // namespace graphics
 
-}
+} // jcpe

@@ -6,7 +6,7 @@
 #include <memory>
 
 #define GSL_THROW_ON_CONTRACT_VIOLATION
-#include <gsl>
+#include "gsl"
 
 #include "Log.h"
 #include "CoreTypes.h"
@@ -24,13 +24,14 @@ struct Assert_On_Not_Null_Deleter
 template <typename T>
 class owned_ptr : public std::unique_ptr<T, Assert_On_Not_Null_Deleter<T> >
 {
+    using Super_t = std::unique_ptr<T, Assert_On_Not_Null_Deleter<T> >;
 public:
 	using std::unique_ptr<T, Assert_On_Not_Null_Deleter<T> >::unique_ptr;
 
-	operator gsl::not_null<T*>() { return gsl::not_null<T*>(get()); }
-	operator T*() const { return get(); }
+	operator gsl::not_null<T*>() { return gsl::not_null<T*>(Super_t::get()); }
+	operator T*() const { return Super_t::get(); }
 
-	bool hasOwnership() { return get() != nullptr; }
+	bool hasOwnership() { return Super_t::get() != nullptr; }
 };
 
 // ScopeExit functionality, courtesy of the-witness.net

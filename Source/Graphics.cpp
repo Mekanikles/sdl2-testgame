@@ -96,6 +96,9 @@ owned_ptr<Context> createContext(gsl::not_null<Window*> window)
 	
     SDL_GLContext sdlc = SDL_GL_CreateContext(window->sdlWindow);
 
+	const char* rendererDesc = (const char*)glGetString(GL_RENDERER);
+	const char* glVersionDesc = (const char*)glGetString(GL_VERSION);
+
     #ifdef USING_GLEW
     {
         glewExperimental = GL_FALSE;
@@ -103,10 +106,20 @@ owned_ptr<Context> createContext(gsl::not_null<Window*> window)
         if (err != GLEW_OK)
         {
             LOG("Could not create context: " << glewGetErrorString(err));
+			SDL_GL_DeleteContext(sdlc);
             return nullptr;
         }
+
+		if (!GLEW_VERSION_2_0)
+		{
+            LOG("Could not create context. Incompatible OpenGL version: " << glVersionDesc);
+			SDL_GL_DeleteContext(sdlc);
+            return nullptr;
+		}
     }
     #endif
+
+	LOG("Created context with renderer: " << rendererDesc << ", OpenGL version: " << glVersionDesc); 
 
 	Context* context = new Context{ sdlc };
 	return owned_ptr<Context>(context);
@@ -126,17 +139,17 @@ void destroyContext(owned_ptr<Context> context)
 
 static GLuint loadShader(const char *shaderSrc, GLenum type)
 {
-	GLuint shader;
-	GLint compiled;
 	// Create the shader object
-	shader = glCreateShader(type);
+	const GLuint shader = glCreateShader(type);
 	if(shader == 0)
 		return 0;
+
 	// Load the shader source
 	glShaderSource(shader, 1, &shaderSrc, NULL);
 	// Compile the shader
 	glCompileShader(shader);
 	// Check the compile status
+	GLint compiled;
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
 	if(!compiled)
 	{

@@ -28,6 +28,12 @@ bool mainloop()
 					done = true;
 				break;
 			}
+            case SDL_WINDOWEVENT:
+            {
+                if (event.window.event == SDL_WINDOWEVENT_CLOSE)
+                    done = true;
+                break;
+            }
 		}
 	}
 

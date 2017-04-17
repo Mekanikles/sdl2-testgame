@@ -7,47 +7,62 @@ workspace "sdl2-testgame"
 project "Main"
 	kind "ConsoleApp"
 	language "C++"
-	targetdir (rootDir .. "Local/Bin/%{cfg.buildcfg}")
+	targetname ("SDL2Test")
 	
 	includedirs { rootDir .. "External/SDL2/include/" }
 	includedirs { rootDir .. "External/gsl/" }
 	includedirs { rootDir .. "External/glm/" }
-	
-	links { "SDL2", "SDL2main" }
-	debugdir (rootDir .. "Bin")
-	
+
 	files { "**.h", "**.cpp" }
-		
+	flagList = { "C++14", "MultiProcessorCompile" }
+	buildoptions ("-std=c++14")
+	linkoptions ("-stdlib=libc++")	
+
 	filter "system:Windows"
         defines { "__WINDOWS__" }
         includedirs { rootDir .. "External/glew/include" }
 		libdirs { rootDir .. "External/SDL2/lib/x86/" }
 		libdirs { rootDir .. "External/glew/lib/Release/Win32/" }
 		links { "opengl32", "glu32", "glew32s"}
-		
+		links { "SDL2", "SDL2main" }
+		--copylocal { "SDL2" }	maybe ?
+
 	filter "system:MacOSX"
         defines { "__OSX__" }
-		libdirs { rootDir .. "External/SDL2/lib/osx/" }
+		frameworkdirs { "/Library/Frameworks" }
 		links { "OpenGL.framework" }
-	
+		links { "SDL2.framework" }
+
+
 	filter "configurations:Debug"
 		defines { "DEBUG" }
-		flags { "Symbols" }
+		binDir = rootDir .. "Local/Bin/Debug/"
+		symbols "On"
 
 	filter "configurations:Release"
 		defines { "NDEBUG" }
+		binDir = rootDir .. "Local/Bin/Release/"
 		optimize "On"
 
-if not (os.isdir(rootDir .. "Bin"))	then
-	os.mkdir(rootDir .. "Bin")
+	filter {} 
+	flags (flagList)
+	debugdir (binDir)
+	targetdir (binDir)
+
+if not (os.isdir(binDir))	then
+	os.mkdir(binDir)
 end
 
 function copyToBin (sourcePath, file)
-    success, errormsg = os.copyfile(path.translate(rootDir .. sourcePath .. file), path.translate(rootDir .. "Bin/" .. file))	
+	source = path.translate(rootDir .. sourcePath .. file)
+	dest = path.translate(binDir .. file)
+    success, errormsg = os.copyfile(source, dest)	
     if (success == nil) then
-	   print("Cannot copy binaries: " .. errormsg)
+		print("Cannot copy binaries: " .. errormsg)
+	else
+		print("Copied " .. dest)
     end
 end    
 
-copyToBin("External/SDL2/lib/x86/", "SDL2.dll");
-copyToBin("External/SDL2/lib/osx/", "libSDL2.dylib");
+--copyToBin("External/SDL2/lib/x86/", "SDL2.dll");
+--copyToBin("External/SDL2/lib/osx/", "libSDL2.dylib");

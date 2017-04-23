@@ -9,7 +9,7 @@ namespace jcpe
 	#define SUPPORTS_OPENGLES
 #endif
 
-namespace graphics
+namespace Graphics
 {
 	struct Window;
 	struct Context;
@@ -32,7 +32,7 @@ namespace graphics
 		Context creation/destruction
 	*/
 
-	owned_ptr<Context> createContext(gsl::not_null<Window*> window);
+	owned_ptr<Context> createContext(not_null<Window*> window);
 	void destroyContext(owned_ptr<Context> context);
 
 	/*
@@ -41,8 +41,8 @@ namespace graphics
 
 	struct ProgramCreationParams
 	{
-		gsl::not_null<const char*> vertexSource;
-		gsl::not_null<const char*> fragmentSource;
+		not_null<const char*> vertexSource;
+		not_null<const char*> fragmentSource;
 	};
 
 	owned_ptr<Program> createProgram(const ProgramCreationParams& params);
@@ -52,7 +52,7 @@ namespace graphics
 		Frame functions
 	*/
 
-	void swapBuffers(gsl::not_null<Window*> window);
+	void swapBuffers(not_null<Window*> window);
 
 	/*
 		Rendering primitive functions

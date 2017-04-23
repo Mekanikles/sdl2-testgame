@@ -25,7 +25,7 @@
 namespace jcpe
 {
 
-namespace graphics
+namespace Graphics
 {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -75,8 +75,6 @@ owned_ptr<Window> createWindow(const WindowCreationParams& params)
 
 void destroyWindow(owned_ptr<Window> window)
 {
-	assert(window.hasOwnership() && "Trying to destroy null window");
-
 	Window* windowptr = window.release();
     SDL_DestroyWindow(windowptr->sdlWindow);
 
@@ -85,7 +83,7 @@ void destroyWindow(owned_ptr<Window> window)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-owned_ptr<Context> createContext(gsl::not_null<Window*> window)
+owned_ptr<Context> createContext(not_null<Window*> window)
 {
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
@@ -127,8 +125,6 @@ owned_ptr<Context> createContext(gsl::not_null<Window*> window)
 
 void destroyContext(owned_ptr<Context> context)
 {
-	assert(context.hasOwnership() && "Trying to destroy null context");
-
 	Context* contextptr = context.release();
 	SDL_GL_DeleteContext(contextptr->sdlContext);
 
@@ -205,8 +201,6 @@ owned_ptr<Program> createProgram(const ProgramCreationParams& params)
 
 void destroyProgram(owned_ptr<Program> program)
 {
-	assert(program.hasOwnership() && "Trying to destroy null program");
-
 	Program* programptr = program.release();
     glDeleteProgram(programptr->glProgramObject);
 
@@ -215,7 +209,7 @@ void destroyProgram(owned_ptr<Program> program)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-void swapBuffers(gsl::not_null<Window*> window)
+void swapBuffers(not_null<Window*> window)
 {
 	SDL_GL_SwapWindow(window->sdlWindow);
 }

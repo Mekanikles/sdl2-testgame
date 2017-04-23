@@ -10,8 +10,8 @@ using namespace jcpe;
 
 void render()
 {
-	jcpe::graphics::setClearColor(ColorRGBA(1.0f, 0.5f, 0.25f, 1.0f));
-	jcpe::graphics::clearFrameBuffer();
+	Graphics::setClearColor(ColorRGBA(1.0f, 0.5f, 0.25f, 1.0f));
+	Graphics::clearFrameBuffer();
 }
 
 bool mainloop()
@@ -50,20 +50,20 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	AT_SCOPE_EXIT( SDL_Quit(); );
+	SCOPE_EXIT( SDL_Quit(); );
 
-	jcpe::graphics::WindowCreationParams windowParams = { 640, 480 };
-	owned_ptr<jcpe::graphics::Window> window = jcpe::graphics::createWindow(windowParams);
+	Graphics::WindowCreationParams windowParams = { 640, 480 };
+	owned_ptr<Graphics::Window> window = Graphics::createWindow(windowParams);
 	if (!window)
 		return 1;
 
-	AT_SCOPE_EXIT( jcpe::graphics::destroyWindow(std::move(window)); );
+	SCOPE_EXIT( Graphics::destroyWindow(std::move(window)); );
 
-    owned_ptr<jcpe::graphics::Context> context = jcpe::graphics::createContext(window);
+    owned_ptr<Graphics::Context> context = Graphics::createContext(window);
 	if (!context)
 		return 1;
 
-	AT_SCOPE_EXIT( jcpe::graphics::destroyContext(std::move(context)); );
+	SCOPE_EXIT( Graphics::destroyContext(std::move(context)); );
 
 	// Shader sources
 	const char* vertexSource = R"(
@@ -84,16 +84,16 @@ int main(int argc, char* argv[])
 		}
 		)";
 
-	jcpe::graphics::ProgramCreationParams programParams = { vertexSource, fragmentSource };
-	owned_ptr<jcpe::graphics::Program> program = jcpe::graphics::createProgram(programParams);
+	Graphics::ProgramCreationParams programParams = { vertexSource, fragmentSource };
+	owned_ptr<Graphics::Program> program = Graphics::createProgram(programParams);
 	if (!program)
 		return 1;
 
-	AT_SCOPE_EXIT( jcpe::graphics::destroyProgram(std::move(program)); );
+	SCOPE_EXIT( Graphics::destroyProgram(std::move(program)); );
 
 	while (!mainloop())
 	{	
-		jcpe::graphics::swapBuffers(window);
+		Graphics::swapBuffers(window);
 		SDL_Delay(16);
 	}
 

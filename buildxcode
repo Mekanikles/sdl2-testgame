@@ -1,5 +1,0 @@
-#!/bin/sh
-
-premake5 --file=./Source/premake.lua xcode4
-xcodebuild -project Local/Build/Main.xcodeproj/ -configuration Debug
-

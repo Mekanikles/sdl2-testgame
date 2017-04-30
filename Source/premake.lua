@@ -8,18 +8,18 @@ project "Main"
 	kind "ConsoleApp"
 	language "C++"
 	targetname ("SDL2Test")
-	
-	includedirs { rootDir .. "External/SDL2/include/" }
-	includedirs { rootDir .. "External/gsl/" }
-	includedirs { rootDir .. "External/glm/" }
 
 	files { "**.h", "**.cpp" }
-	flagList = { "C++14", "MultiProcessorCompile" }
+	flags { "C++14", "MultiProcessorCompile" }
+
 	buildoptions ("-std=c++14")
 	linkoptions ("-stdlib=libc++")	
 
 	filter "system:Windows"
         defines { "__WINDOWS__" }
+		--includedirs { rootDir .. "External/SDL2/include/" }
+		includedirs { rootDir .. "External/gsl/" }
+		includedirs { rootDir .. "External/glm/" }       
         includedirs { rootDir .. "External/glew/include" }
 		libdirs { rootDir .. "External/SDL2/lib/x86/" }
 		libdirs { rootDir .. "External/glew/lib/Release/Win32/" }
@@ -29,25 +29,29 @@ project "Main"
 
 	filter "system:MacOSX"
         defines { "__OSX__" }
-		frameworkdirs { "/Library/Frameworks" }
-		links { "OpenGL.framework" }
-		links { "SDL2.framework" }
+		includedirs { rootDir .. "External/gsl/" }
+		includedirs { rootDir .. "External/glm/" }
 
+		buildoptions ( os.outputof(rootDir .. "External/SDL2/MacOS/bin/sdl2-config --cflags") )
+		buildoptions ( "-mmacosx-version-min=10.11" )
+		links { "OpenGL.framework" }
+		linkoptions ( os.outputof(rootDir .. "External/SDL2/MacOS/bin/sdl2-config --libs") )
 
 	filter "configurations:Debug"
 		defines { "DEBUG" }
 		binDir = rootDir .. "Local/Bin/Debug/"
+		debugdir (binDir)
+		targetdir (binDir)
 		symbols "On"
 
 	filter "configurations:Release"
 		defines { "NDEBUG" }
 		binDir = rootDir .. "Local/Bin/Release/"
+		debugdir (binDir)
+		targetdir (binDir)	
 		optimize "On"
 
 	filter {} 
-	flags (flagList)
-	debugdir (binDir)
-	targetdir (binDir)
 
 if not (os.isdir(binDir))	then
 	os.mkdir(binDir)
@@ -64,5 +68,3 @@ function copyToBin (sourcePath, file)
     end
 end    
 
---copyToBin("External/SDL2/lib/x86/", "SDL2.dll");
---copyToBin("External/SDL2/lib/osx/", "libSDL2.dylib");

@@ -30,10 +30,9 @@ project "Main"
 	filter "system:MacOSX"
         defines { "__OSX__" }
 		includedirs { rootDir .. "External/gsl/" }
-		includedirs { rootDir .. "External/glm/" }
+		includedirs { rootDir .. "External/glm/MacOS/include" }
 
 		buildoptions ( os.outputof(rootDir .. "External/SDL2/MacOS/bin/sdl2-config --cflags") )
-		buildoptions ( "-mmacosx-version-min=10.11" )
 		links { "OpenGL.framework" }
 		linkoptions ( os.outputof(rootDir .. "External/SDL2/MacOS/bin/sdl2-config --libs") )
 

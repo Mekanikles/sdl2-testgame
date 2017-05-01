@@ -10,6 +10,7 @@ platform = Platform()
 if (platform.isMacOS()):
 	print "Building for MacOS."
 
+	# SDL2
 	sdl2Dir = platform.verifyExternalDir("SDL2")
 	sdl2Files = [ "bin", "include", "lib" ]
 	if not checkExternalFiles(sdl2Files, sdl2Dir):
@@ -17,10 +18,21 @@ if (platform.isMacOS()):
 		sourceDir = platform.verifyExternalSourceDir("SDL2")
 		unpackArchive(archive, sourceDir)
 		sourceDir = findDir(sourceDir, ["configure"])
-		print sourceDir
 		configureInstallSource(sourceDir, platform.verifyExternalBuildDir("SDL2"), 
 			["CC=sh " + os.path.abspath(os.path.join(sourceDir, "build-scripts/gcc-fat.sh")),
 			"--prefix=" + os.path.abspath(sdl2Dir)])
+
+	# GLM
+	glmDir = platform.verifyExternalDir("glm")
+	glmFiles = ["include"]
+	if not checkExternalFiles(glmFiles, glmDir):
+		archive = requireDownloadedFile("https://github.com/g-truc/glm/archive/0.9.8.4.tar.gz")
+		sourceDir = platform.verifyExternalSourceDir("glm")
+		unpackArchive(archive, sourceDir)
+		sourceDir = findDir(sourceDir, ["CMakeLists.txt"])
+		cmakeInstallSource(sourceDir, platform.verifyExternalBuildDir("glm"),
+			["-DCMAKE_INSTALL_PREFIX:PATH=" + os.path.abspath(glmDir)])
+
 
 	print "Generating projects..."
 	subprocess.call(["premake5", "--file=./Source/premake.lua", "xcode4"])

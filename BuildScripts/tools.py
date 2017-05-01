@@ -1,7 +1,7 @@
 import os
 import errno
 import tarfile
-import urllib
+import urllib2
 import subprocess
 import exceptions
 
@@ -23,6 +23,18 @@ def checkExternalFiles(fileList, externalDir):
 			hasPrerequisites = False
 	return hasPrerequisites
 
+
+def downloadFile(url, target):
+    try:
+        file = urllib2.urlopen(url)
+        print "Dowloading file: '" + url + "' To '" + target + "'"
+        with open(target, "wb") as targetFile:
+            targetFile.write(file.read())
+    except urllib2.HTTPError, e:
+        print "HTTP Error:", e.code, url
+    except urllib2.URLError, e:
+        print "URL Error:", e.reason, url
+
 def requireDownloadedFile(url):
 	downloadDir = "./Downloads"
 	downloadTarget = os.path.join(downloadDir, os.path.basename(url))
@@ -30,11 +42,7 @@ def requireDownloadedFile(url):
 	if not os.path.exists(downloadTarget):
 		if not os.path.exists(downloadDir):
 			os.mkdir(downloadDir)
-
-		file = urllib.URLopener()
-		print "Dowloading file: '" + url + "' To '" + downloadTarget + "'"
-		file.retrieve(url, downloadTarget)
-
+		downloadFile(url, downloadTarget)
 	return downloadTarget
 
 def unpackArchive(archive, targetDir):
@@ -53,6 +61,7 @@ def findDir(searchDir, searchFiles):
 		if containsFile:
 			print "Found source at '" + root + "'"
 			return root
+	raise RuntimeError("Could not find source directory")
 
 def callProcess(args):
 	p = subprocess.Popen(args)
@@ -61,7 +70,6 @@ def callProcess(args):
 		raise RuntimeError("Process failed")
 
 def configureInstallSource(configureDir, buildDir, params):
-	makeDirRecursive(buildDir)
 	configurePath = os.path.join(os.path.abspath(configureDir), "configure")
 	curDir = os.getcwd()
 	os.chdir(buildDir)
@@ -75,6 +83,22 @@ def configureInstallSource(configureDir, buildDir, params):
 		raise
 	finally:
 		os.chdir(curDir)
+
+def cmakeInstallSource(sourceDir, buildDir, params):
+	sourcePath = os.path.abspath(sourceDir)
+	curDir = os.getcwd()
+	os.chdir(buildDir)
+	try:
+		callParams = [ "cmake" ] + params + [ sourcePath ]
+		print "Configuring build in directory '" + buildDir + "' from source '" + sourcePath + "' using params '" + " ".join(params) + "'..."
+		callProcess(callParams)
+		print "Installing build..."
+		callProcess(["make", "install"])
+	except:
+		raise
+	finally:
+		os.chdir(curDir)
+
 
 
 

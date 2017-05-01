@@ -4,6 +4,8 @@ import tarfile
 import urllib2
 import subprocess
 import exceptions
+import zipfile
+import shutil
 
 def makeDirRecursive(path):
     try:
@@ -45,8 +47,7 @@ def requireDownloadedFile(url):
 		downloadFile(url, downloadTarget)
 	return downloadTarget
 
-def unpackArchive(archive, targetDir):
-	print "Unpacking '" + archive + "' To '" + targetDir + "'"
+def unpackTarArchive(archive, targetDir):
 	tar = tarfile.open(archive)
 	try:
 		tar.extractall(targetDir)
@@ -55,13 +56,43 @@ def unpackArchive(archive, targetDir):
 	finally:	
 		tar.close()
 
-def findDir(searchDir, searchFiles):
+def unpackZipArchive(archive, targetDir):
+	zip = zipfile.ZipFile(archive, 'r')
+	try:
+		zip.extractall(targetDir)
+	except:
+		raise
+	finally:	
+		zip.close()
+
+def unpackArchive(archive, targetDir):
+	print "Unpacking '" + archive + "' To '" + targetDir + "'"
+	filename, fileExtension = os.path.splitext(archive)
+	if fileExtension == ".gz" or fileExtension == ".tar":
+		unpackTarArchive(archive, targetDir)
+	elif fileExtension == ".zip":
+		unpackZipArchive(archive, targetDir)	
+	else:
+		raise RuntimeError("Unknown archive format")
+			
+def findRootDir(searchDir, searchFile):
 	for root, subFolders, files in os.walk(searchDir):
-		containsFile = set(searchFiles).intersection(files)
-		if containsFile:
-			print "Found source at '" + root + "'"
+		if searchFile in files:
+			print "Found file " + searchFile + " at '" + root + "'"
 			return root
+		if searchFile in subFolders:
+			print "Found dir " + searchFile + " at '" + root + "'"
+			return root	
+
 	raise RuntimeError("Could not find source directory")
+
+def findDir(searchDir, searchFile):
+	root = findRootDir(searchDir, searchFile)
+	return os.path.join(root, searchFile)
+
+def copyDir(sourceDir, destDir):
+	dirName = os.path.basename(sourceDir)
+	shutil.copytree(sourceDir, os.path.join(destDir, dirName), ignore = shutil.ignore_patterns('*.DS_Store', '*.Trashes'))
 
 def callProcess(args):
 	p = subprocess.Popen(args)

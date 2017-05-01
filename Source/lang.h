@@ -9,7 +9,7 @@
 #include "glm/glm.hpp"
 
 #define GSL_THROW_ON_CONTRACT_VIOLATION
-#include "gsl"
+#include "gsl/gsl"
 
 namespace lang
 {

@@ -29,7 +29,7 @@ project "Main"
 
 	filter "system:MacOSX"
         defines { "__OSX__" }
-		includedirs { rootDir .. "External/gsl/" }
+		includedirs { rootDir .. "External/gsl/MacOS/include" }
 		includedirs { rootDir .. "External/glm/MacOS/include" }
 
 		buildoptions ( os.outputof(rootDir .. "External/SDL2/MacOS/bin/sdl2-config --cflags") )

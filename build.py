@@ -17,7 +17,7 @@ if (platform.isMacOS()):
 		archive = requireDownloadedFile("https://www.libsdl.org/release/SDL2-2.0.5.tar.gz")
 		sourceDir = platform.verifyExternalSourceDir("SDL2")
 		unpackArchive(archive, sourceDir)
-		sourceDir = findDir(sourceDir, ["configure"])
+		sourceDir = findRootDir(sourceDir, "configure")
 		configureInstallSource(sourceDir, platform.verifyExternalBuildDir("SDL2"), 
 			["CC=sh " + os.path.abspath(os.path.join(sourceDir, "build-scripts/gcc-fat.sh")),
 			"--prefix=" + os.path.abspath(sdl2Dir)])
@@ -29,10 +29,19 @@ if (platform.isMacOS()):
 		archive = requireDownloadedFile("https://github.com/g-truc/glm/archive/0.9.8.4.tar.gz")
 		sourceDir = platform.verifyExternalSourceDir("glm")
 		unpackArchive(archive, sourceDir)
-		sourceDir = findDir(sourceDir, ["CMakeLists.txt"])
+		sourceDir = findRootDir(sourceDir, "CMakeLists.txt")
 		cmakeInstallSource(sourceDir, platform.verifyExternalBuildDir("glm"),
 			["-DCMAKE_INSTALL_PREFIX:PATH=" + os.path.abspath(glmDir)])
 
+	# GSL
+	gslDir = platform.verifyExternalDir("gsl")
+	gslFiles = ["include"]
+	if not checkExternalFiles(gslFiles, gslDir):
+		archive = requireDownloadedFile("https://github.com/Microsoft/GSL/archive/master.zip")
+		sourceDir = platform.verifyExternalSourceDir("gsl")
+		unpackArchive(archive, sourceDir)
+		sourceDir = findDir(sourceDir, "include")
+		copyDir(sourceDir, gslDir)
 
 	print "Generating projects..."
 	subprocess.call(["premake5", "--file=./Source/premake.lua", "xcode4"])

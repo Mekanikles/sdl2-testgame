@@ -43,6 +43,13 @@ if (platform.isMacOS()):
 		sourceDir = findDir(sourceDir, "include")
 		copyDir(sourceDir, gslDir)
 
+	# Nuklear
+	nuklearDir = platform.verifyExternalDir("nuklear")
+	nuklearFiles = ["nuklear.h"]
+	if not checkExternalFiles(gslFiles, gslDir):
+		print "Cannot find nuklear.h!"
+		raise -1
+
 	print "Generating projects..."
 	subprocess.call(["premake5", "--file=./Source/premake.lua", "xcode4"])
 	print "Compiling..."

@@ -12,7 +12,7 @@ project "Main"
 	files { "**.h", "**.cpp" }
 	flags { "C++14", "MultiProcessorCompile" }
 
-	buildoptions ("-std=c++14")
+	buildoptions ("-std=c++14", "-ffast-math")
 	linkoptions ("-stdlib=libc++")	
 
 	filter "system:Windows"
@@ -31,6 +31,7 @@ project "Main"
         defines { "__OSX__" }
 		includedirs { rootDir .. "External/gsl/MacOS/include" }
 		includedirs { rootDir .. "External/glm/MacOS/include" }
+		includedirs { rootDir .. "External/nuklear/MacOS" }
 
 		buildoptions ( os.outputof(rootDir .. "External/SDL2/MacOS/bin/sdl2-config --cflags") )
 		links { "OpenGL.framework" }

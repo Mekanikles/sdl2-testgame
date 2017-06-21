@@ -152,6 +152,8 @@ namespace lang
  
 	#define SCOPE_EXIT(code) auto CONCAT(on_scope_exit_, __LINE__) = make_scope_exit([&](){code})
 
+	#define UNIQUE_SYMBOL(x) CONCAT(x, __COUNTER__)
+
 
 
 

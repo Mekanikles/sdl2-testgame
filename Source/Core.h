@@ -13,7 +13,16 @@ using namespace lang;
 
 struct Color32 : public vec4
 {
-	using vec4::vec4;
+	Color32() = default;
+
+	Color32(uint uColor) : vec4(math::unpackUnorm4x8(uColor))
+	{}
+
+	Color32(float r, float b, float g) : vec4(r, g, b, 1.0f)
+	{}
+
+	Color32(float r, float b, float g, float a) : vec4(r, g, b, a)
+	{}
 
 	vec4u8 bytes() const
 	{
@@ -22,14 +31,6 @@ struct Color32 : public vec4
 		return glm::make_vec4(byteArr);
 	}
 };
-
-namespace Color
-{
-	static const Color32 red = Color32(1, 0, 0, 1);
-	static const Color32 green = Color32(0, 1, 0, 1);
-	static const Color32 blue = Color32(0, 0, 1, 1);
-};
-
 
 // Can be used for strongly typing "typedefs"
 //	like so: using MyType = TypeWrapper<T>;

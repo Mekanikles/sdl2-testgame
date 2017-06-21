@@ -2,6 +2,7 @@
 from BuildScripts.platform import *
 from BuildScripts.tools import *
 import os
+import sys
 
 externalDir = "./External"
 
@@ -53,7 +54,8 @@ if (platform.isMacOS()):
 	print "Generating projects..."
 	subprocess.call(["premake5", "--file=./Source/premake.lua", "xcode4"])
 	print "Compiling..."
-	subprocess.call(["xcodebuild", "-project", "Local/Build/Main.xcodeproj", "-configuration", "Debug"])
+	retcode = subprocess.call(["xcodebuild", "-project", "Local/Build/Main.xcodeproj", "-configuration", "Debug"])
+	sys.exit(retcode)
 
 else:
 	print "Platform '" + platform.name() + "' not supported"

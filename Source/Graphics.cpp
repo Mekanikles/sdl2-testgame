@@ -3,6 +3,9 @@
 #include "SDL.h"
 
 #include "Core.h"
+#include "Profiler.h"
+
+#include "ColorDefines.h"
 
 #if defined(__IPHONEOS__) || defined(__ANDROID__)
 	#define SUPPORTS_OPENGLES
@@ -27,6 +30,8 @@ namespace jcpe
 
 namespace Graphics
 {
+
+const auto kProfilerCategoryGraphics = Profiler::CategoryInfo { "Graphics", Color::kFrenchLime };
 
 struct AttributeTypeInfo
 {
@@ -382,6 +387,7 @@ void bind2dTexture(const TextureChannel& channel, const TextureHandle& texture)
 
 void swapWindow(not_null<Window*> window)
 {
+	PROFILER_SCOPE("Swap", &kProfilerCategoryGraphics);	
 	SDL_GL_SwapWindow(window->sdlWindow);
 }
 

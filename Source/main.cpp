@@ -12,6 +12,8 @@
 #include "SDL_assert.h"
 
 #include "Core.h"
+#include "Profiler.h"
+#include "ProfilerTimeline.h"
 
 #include "IMGui.h"
 
@@ -26,12 +28,14 @@ using namespace jcpe;
 static owned_ptr<Graphics::Window> s_window;
 static unique_ptr<IMGui> s_imGui;
 
+static unique_ptr<ProfilerTimeline> s_profilerTimeline;
+
 
 const float s_frameDelayMs = 16;
 
-const float s_ballGrowth = 0.1f;
-const float s_ballHitShrink = 0.4f;
-const float s_ballMinRadius = 5.f;
+//const float s_ballGrowth = 0.1f;
+//const float s_ballHitShrink = 0.4f;
+//const float s_ballMinRadius = 5.f;
 const float s_ballStartRadius = 10.f;
 bool s_ballSetup = false;
 const int s_ballCountX = 20;
@@ -167,6 +171,8 @@ void render()
 
 bool mainloop()
 {
+	PROFILER_SCOPE("Mainloop");
+
 	++s_frame;
 
 	bool done = false;
@@ -209,6 +215,8 @@ bool mainloop()
 
 	//s_imGui->text(Rect2(Point2(150, 150), vec2(25, 25)), "Testing text", Color::blue);
 
+	s_profilerTimeline->draw(s_imGui);
+
 	s_imGui->endFrame();
 
 	render();
@@ -218,6 +226,9 @@ bool mainloop()
 
 int run()
 {
+	// Begin initialization frame
+	Profiler::getProfiler()->beginFrame();
+
     SDL_SetHint(SDL_HINT_VIDEO_HIGHDPI_DISABLED, "0");	
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_EVENTS) < 0)
 	{
@@ -268,10 +279,25 @@ int run()
 
 	s_imGui = make_unique<IMGui>();
 
-	while (!mainloop())
+	s_profilerTimeline = ProfilerTimeline::create();
+
+	// End initialization frame
+	Profiler::getProfiler()->endFrame();
+
+	bool done = false;
+	while (!done)
 	{	
+		Profiler::getProfiler()->beginFrame();
+
+		done = mainloop();
 		Graphics::swapWindow(s_window);
-		SDL_Delay(s_frameDelayMs);
+
+		{
+			PROFILER_SCOPE("WaitingForFrame", &Profiler::kProfilerCategoryIdle);
+			SDL_Delay(s_frameDelayMs);
+		}
+
+		Profiler::getProfiler()->endFrame();
 	}
 
 	return 0;
@@ -323,5 +349,9 @@ handler()
 int main(int argc, char* argv[]) 
 {
 	std::set_terminate(handler);
+
+	unique_ptr<Profiler::Profiler> profiler = Profiler::Profiler::createProfiler();
+	Profiler::setProfiler(profiler);
+
 	return run();
 }

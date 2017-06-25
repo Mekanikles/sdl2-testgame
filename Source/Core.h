@@ -11,17 +11,24 @@
 
 using namespace lang;
 
+
+inline vec4 unpackUnorm4x8_BigEndian(uint p)
+{
+	auto b = (uint8*)&p;
+	return vec4(b[3], b[2], b[1], b[0]) * (1.0f / 255.0f);
+}
+
 struct Color32 : public vec4
 {
 	Color32() = default;
 
-	Color32(uint uColor) : vec4(math::unpackUnorm4x8(uColor))
+	Color32(uint uColor) : vec4(unpackUnorm4x8_BigEndian(uColor))
 	{}
 
-	Color32(float r, float b, float g) : vec4(r, g, b, 1.0f)
+	Color32(float r, float g, float b) : vec4(r, g, b, 1.0f)
 	{}
 
-	Color32(float r, float b, float g, float a) : vec4(r, g, b, a)
+	Color32(float r, float g, float b, float a) : vec4(r, g, b, a)
 	{}
 
 	vec4u8 bytes() const
@@ -76,6 +83,9 @@ struct TRect2
 	TRect2(const TPoint2<T>& p1, const TPoint2<T>& p2) : p1(p1), p2(p2) {}
 	TRect2(const TPoint2<T>& p, const tvec2<T>& s) : p1(p), p2(p + s) {}
 	TRect2(const TPoint2<T>& p, const T& width, const T& height) : p1(p), p2(p.x + width, p.y + height) {}	
+	TRect2(const T& px, const T& py, const tvec2<T>& s) : p1(px, py), p2(p1 + s) {}
+	TRect2(const T& px, const T& py, const T& width, const T& height) : p1(px, py), p2(p1.x + width, p1.y + height) {}	
+
 
 	T width() const { return x2 - x1; }
 	T height() const { return y2 - y1; }

@@ -12,10 +12,12 @@
 #include "SDL_assert.h"
 
 #include "Core.h"
+#include "ColorDefines.h"
 #include "Profiler.h"
 #include "ProfilerTimeline.h"
 
 #include "IMGui.h"
+
 
 namespace jcpe
 {
@@ -24,6 +26,10 @@ namespace jcpe
 }
 
 using namespace jcpe;
+
+const auto kProfilerCategorySimulation = Profiler::CategoryInfo { "Simulation", Color::kGreen };
+const auto kProfilerCategoryDrawing = Profiler::CategoryInfo { "Drawing", Color::kBlue };
+const auto kProfilerCategoryRendering = Profiler::CategoryInfo { "Rendering", Color::kOrange };
 
 static owned_ptr<Graphics::Window> s_window;
 static unique_ptr<IMGui> s_imGui;
@@ -80,6 +86,8 @@ void setupBalls(const vec2& canvasSize)
 
 void simulateBalls(const vec2& canvasSize)
 {
+	PROFILER_SCOPE("Simulate balls", &kProfilerCategorySimulation);
+
 	// Move
 	for (auto& b : s_balls)
 	{
@@ -91,6 +99,8 @@ void simulateBalls(const vec2& canvasSize)
 	// Collide
 	for (int i = 0; i < 5; ++i)
 	{	
+		PROFILER_SCOPE("Collision pass", &kProfilerCategorySimulation);
+
 	const int ballCount = s_balls.size();
 	for (int b1i = 0; b1i < ballCount; ++b1i)	
 	{
@@ -151,6 +161,8 @@ void simulateBalls(const vec2& canvasSize)
 
 void drawBalls()
 {
+	PROFILER_SCOPE("Draw balls", &kProfilerCategoryDrawing);
+
 	for (auto& b : s_balls)
 	{
 		s_imGui->filledCircle(Rect2(Point2(b.pos.x - b.radius, b.pos.y - b.radius), vec2(b.radius * 2, b.radius * 2)), b.color);
@@ -159,6 +171,8 @@ void drawBalls()
 
 void render()
 {
+	PROFILER_SCOPE("Render", &kProfilerCategoryRendering);
+
 	using namespace Graphics;
 
 	setViewport(Rect2i(Point2i(0, 0), Graphics::getWindowSize(s_window)));

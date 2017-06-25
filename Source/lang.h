@@ -113,6 +113,7 @@ namespace lang
 		// Allow implicit conversion to reduce code clutter
 		operator not_null<T*>() { return not_null<T*>(Super_t::get()); }
 		operator const T*() const { return Super_t::get(); }
+		operator T*() { return Super_t::get(); }
 	};
 
 	template<typename T, typename... Args>

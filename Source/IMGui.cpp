@@ -14,13 +14,17 @@
 #define NK_ASSERT(expr) ASSERT(expr)
 #include "nuklear.h"
 
+#include "ColorDefines.h"
 #include "Graphics.h"
+#include "Profiler.h"
 
 // TODO: Get rid of
 #include "SDL.h"
 
 namespace jcpe
 {
+
+const auto kProfilerCategoryIMGui = Profiler::CategoryInfo { "IMGui", Color::kBrightPink };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -238,6 +242,8 @@ IMGui::~IMGui()
 
 void IMGui::beginFrame(const vec2& canvasSize)
 {
+	PROFILER_SCOPE("IMGuiBegin", &kProfilerCategoryIMGui);
+
 	IMGuiImpl::Context& ctx = m_impl->context;
 	nk_begin(&ctx.nk, "imgui", imGui::toNkRect(Rect2(Point2(0, 0), canvasSize)), NK_WINDOW_NO_SCROLLBAR);
 	m_impl->canvas = nk_window_get_canvas(&ctx.nk);
@@ -246,6 +252,8 @@ void IMGui::beginFrame(const vec2& canvasSize)
 	
 void IMGui::endFrame()
 {
+	PROFILER_SCOPE("IMGuiEnd", &kProfilerCategoryIMGui);
+
 	IMGuiImpl::Context& ctx = m_impl->context;
 	nk_end(&ctx.nk);
 	m_impl->canvas = nullptr;
@@ -283,14 +291,26 @@ void IMGui::text(const Rect2& rect, const string& text, const Color32& color)
 	nk_command_buffer* canvas = m_impl->canvas;
 	const auto c = color.bytes();
 	const auto style = &m_impl->context.nk.style;
-	nk_draw_text(canvas, imGui::toNkRect(rect), text.c_str(), 
-		text.length(), style->font, nk_rgba(0, 0, 0, 0), nk_rgba(c.x, c.y, c.z, c.w));
+
+    struct nk_text textInfo;
+    textInfo.padding.x = style->text.padding.x;
+   	textInfo.padding.y = style->text.padding.y;
+    textInfo.background = nk_rgba(0, 0, 0, 0);
+    textInfo.text = nk_rgba(c.x, c.y, c.z, c.w);
+
+	nk_widget_text(canvas, imGui::toNkRect(rect), text.c_str(), 
+			text.length(), &textInfo, NK_TEXT_CENTERED, style->font);
+
+	//nk_draw_text(canvas, imGui::toNkRect(rect), text.c_str(), 
+	//	text.length(), style->font, nk_rgba(0, 0, 0, 0), nk_rgba(c.x, c.y, c.z, c.w));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void IMGui::render(not_null<const Graphics::Window*> window)
 {
+	PROFILER_SCOPE("IMGuiRender", &kProfilerCategoryIMGui);
+
 	using namespace Graphics;	
 
 	// TODO: Make const? Move convert to other function render/dispatch?

@@ -6,8 +6,8 @@ namespace jcpe
 namespace Profiler
 {
 
+using Duration = std::chrono::high_resolution_clock::duration;
 using TimeStamp = std::chrono::time_point<std::chrono::high_resolution_clock>;
-using Duration = std::chrono::nanoseconds;
 
 struct CategoryInfo
 {
@@ -26,7 +26,16 @@ struct Sample
 	TimeStamp startTime;
 	Duration duration;
 	int childCount;
-	const SampleInfo* info;
+	not_null<const SampleInfo*> info;
+
+	Sample(not_null<const SampleInfo*> info) : info(info) {}
+};
+
+struct FrameData
+{
+	// Sample tree stored in a Preorder traversal
+	//	First sample is root sampe, encompassing whole frame
+	vector<Sample> samples;
 };
 
 class Profiler
@@ -42,6 +51,8 @@ public:
 	// TODO: shared_ptr profiler info?
 	not_null<Sample*> beginSampleWithoutStartTime(not_null<const SampleInfo*> info);
 	void endSample(const TimeStamp& endTime);
+
+	const FrameData* getLastFrameData();
 
 private:
 	Profiler(void* stateMemAddr);
